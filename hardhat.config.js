@@ -38,7 +38,20 @@ module.exports = {
       accounts: [`0x${METAMASK_PRIVATE_KEY}`]
     }
   },
+  sourcify: {
+    enabled: false
+  },
   etherscan: {
-    apiKey: POLYGONSCAN_API_KEY
+    apiKey: POLYGONSCAN_API_KEY,
+    customChains: [
+      {
+        network: "Polygon Amoy",
+        chainId: 80002,
+        urls: {
+          apiURL: "https://api-amoy.polygonscan.com/api",
+          browserURL: 'https://amoy.polygonscan.com'
+        }
+      }
+    ]
   },
 };

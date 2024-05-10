@@ -1,5 +1,16 @@
 {
   "name": "nft-dao",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "deploy-amoy": "npx hardhat run --network amoy scripts/deploy.js",
+    "deploy-polygon": "npx hardhat run --network polygon scripts/deploy.js",
+    "verify": "npx hardhat verify --network amoy 0x1931677815Cd49e5062D3f5ded4265ccbB1ce1BD",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cdreamer1/dao-contracts.git"
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "hardhat": "^2.22.3"
@@ -9,6 +20,7 @@
     "@openzeppelin/contracts": "^5.0.2",
     "@openzeppelin/contracts-upgradeable": "^5.0.2",
     "@openzeppelin/hardhat-upgrades": "^3.1.0",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "ethers": "^6.12.1"
   }
 }
