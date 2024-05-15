@@ -1,0 +1,10 @@
+const { TOKEN_NAME, TOKEN_SYMBOL, TOKEN_SUPPLY, INITIAL_OWNER, MINT_PRICE, TOKEN_URI } = require("../constants");
+
+module.exports = [
+  TOKEN_NAME,
+  TOKEN_SYMBOL,
+  TOKEN_URI,
+  MINT_PRICE,
+  TOKEN_SUPPLY,
+  INITIAL_OWNER
+];

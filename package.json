@@ -4,7 +4,7 @@
     "compile": "npx hardhat compile",
     "deploy-amoy": "npx hardhat run --network amoy scripts/deploy.js",
     "deploy-polygon": "npx hardhat run --network polygon scripts/deploy.js",
-    "verify": "npx hardhat verify --network amoy 0x1931677815Cd49e5062D3f5ded4265ccbB1ce1BD",
+    "verify": "npx hardhat verify --network amoy --constructor-args scripts/args_nft.js 0x1931677815Cd49e5062D3f5ded4265ccbB1ce1BD",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
