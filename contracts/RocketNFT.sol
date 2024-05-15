@@ -17,27 +17,35 @@ contract RocketNFT is Ownable {
     uint256 public tokenTracker;
     uint256 public maxSupply;
 
+    mapping(address => mapping(uint256 => uint256)) private _tokenOwnerIndexed;
     mapping(uint256 => address) private _owners;
     mapping(address => uint256) private _balances;
     mapping(uint256 => address) private _tokenApprovals;
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
-    constructor(string memory name_, string memory symbol_, string memory tokenURI_, uint256 _price, uint256 _maxSupply, address initialOwner) Ownable(initialOwner) {
+    constructor(string memory name_, string memory symbol_, string memory tokenURI_, uint256 price_, uint256 maxSupply_, address initialOwner) Ownable(initialOwner) {
         _name = name_;
         _symbol = symbol_;
         _tokenURI = tokenURI_;
-        price = _price;
-        maxSupply = _maxSupply;
+        price = price_;
+        maxSupply = maxSupply_;
     }
 
     function balanceOf(address owner) public view returns (uint256) {
-        require(owner != address(0), "RocketDAO: address zero is not a valid owner");
+        require(owner != address(0), "RocketNFT: address zero is not a valid owner");
         return _balances[owner];
+    }
+
+    function tokenOfOwnerByIndex(address owner, uint256 index) external view returns (uint256) {
+        require(owner != address(0), "RocketNFT: address zero is not a valid owner");
+        require(index < balanceOf(owner), "RocketNFT: index is over the range");
+
+        return _tokenOwnerIndexed[owner][index];
     }
 
     function ownerOf(uint256 tokenId) public view returns (address) {
         address owner = _ownerOf(tokenId);
-        require(owner != address(0), "RocketDAO: invalid token ID");
+        require(owner != address(0), "RocketNFT: invalid token ID");
         return owner;
     }
 
@@ -59,12 +67,14 @@ contract RocketNFT is Ownable {
     }
 
     function mint(uint24 count) external payable {
-        require(count > 0, "Ivalid count");
-        require(msg.value > count * price, "insufficient value");
-        require(maxSupply >= tokenTracker + count, "insufficient supply");
+        require(count > 0, "RocketNFT: ivalid count");
+        require(msg.value > count * price, "RocketNFT: insufficient value");
+        require(maxSupply >= tokenTracker + count, "RocketNFT: insufficient supply");
 
+        uint256 balanceOwner = balanceOf(msg.sender);
         for (uint256 i = tokenTracker; i < tokenTracker + count; i ++) {
             _mint(msg.sender, i);
+            _tokenOwnerIndexed[msg.sender][balanceOwner + i - tokenTracker] = i;
         }
         tokenTracker = tokenTracker + count;
 
@@ -79,11 +89,11 @@ contract RocketNFT is Ownable {
 
     function approve(address to, uint256 tokenId) public {
         address owner = ownerOf(tokenId);
-        require(to != owner, "RocketDAO: approval to current owner");
+        require(to != owner, "RocketNFT: approval to current owner");
 
         require(
             msg.sender == owner || isApprovedForAll(owner, msg.sender),
-            "RocketDAO: approve caller is not token owner or approved for all"
+            "RocketNFT: approve caller is not token owner or approved for all"
         );
 
         _approve(to, tokenId);
@@ -105,7 +115,7 @@ contract RocketNFT is Ownable {
 
     function transferFrom(address from, address to, uint256 tokenId) public {
         //solhint-disable-next-line max-line-length
-        require(_isApprovedOrOwner(msg.sender, tokenId), "RocketDAO: caller is not token owner or approved");
+        require(_isApprovedOrOwner(msg.sender, tokenId), "RocketNFT: caller is not token owner or approved");
 
         _transfer(from, to, tokenId);
     }
@@ -115,7 +125,7 @@ contract RocketNFT is Ownable {
     }
 
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public {
-        require(_isApprovedOrOwner(msg.sender, tokenId), "RocketDAO: caller is not token owner or approved");
+        require(_isApprovedOrOwner(msg.sender, tokenId), "RocketNFT: caller is not token owner or approved");
         _safeTransfer(from, to, tokenId, data);
     }
 
@@ -142,12 +152,12 @@ contract RocketNFT is Ownable {
     }
 
     function _mint(address to, uint256 tokenId) internal {
-        require(to != address(0), "RocketDAO: mint to the zero address");
-        require(!_exists(tokenId), "RocketDAO: token already minted");
+        require(to != address(0), "RocketNFT: mint to the zero address");
+        require(!_exists(tokenId), "RocketNFT: token already minted");
 
         _beforeTokenTransfer(address(0), to, tokenId, 1);
 
-        require(!_exists(tokenId), "RocketDAO: token already minted");
+        require(!_exists(tokenId), "RocketNFT: token already minted");
 
         unchecked {
             _balances[to] += 1;
@@ -180,11 +190,11 @@ contract RocketNFT is Ownable {
     }
 
     function _transfer(address from, address to, uint256 tokenId) internal {
-        require(ownerOf(tokenId) == from, "RocketDAO: transfer from incorrect owner");
-        require(to != address(0), "RocketDAO: transfer to the zero address");
+        require(ownerOf(tokenId) == from, "RocketNFT: transfer from incorrect owner");
+        require(to != address(0), "RocketNFT: transfer to the zero address");
 
         _beforeTokenTransfer(from, to, tokenId, 1);
-        require(ownerOf(tokenId) == from, "RocketDAO: transfer from incorrect owner");
+        require(ownerOf(tokenId) == from, "RocketNFT: transfer from incorrect owner");
 
         delete _tokenApprovals[tokenId];
 
@@ -205,13 +215,13 @@ contract RocketNFT is Ownable {
     }
 
     function _setApprovalForAll(address owner, address operator, bool approved) internal {
-        require(owner != operator, "RocketDAO: approve to caller");
+        require(owner != operator, "RocketNFT: approve to caller");
         _operatorApprovals[owner][operator] = approved;
         emit ApprovalForAll(owner, operator, approved);
     }
 
     function _requireMinted(uint256 tokenId) internal view {
-        require(_exists(tokenId), "RocketDAO: invalid token ID");
+        require(_exists(tokenId), "RocketNFT: invalid token ID");
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 firstTokenId, uint256 batchSize) internal {}
